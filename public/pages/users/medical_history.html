@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historia Clínica</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            height: 650px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Consulta Médica</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="appointments.html">Agendar una cita</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="index_user.html">Ver mi perfil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="medical_history.html">Ver resultados de pruebas</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    
+    <div class="container mt-5">
+        <h1 class="text-center">Historia Clínica</h1>
+        <h4 class="text-center">Información de los resultados de citas anteriores</h4>
+        <br>
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <h2>Visitas Médicas Anteriores</h2>
+                <div id="medicalHistoryContainer">
+                    <!-- Los valores de la historia clínica se mostrarán aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            getMedicalHistory();
+        });
+
+        async function getMedicalHistory() {
+            try {
+                const response = await fetch('http://localhost:3000/MedicalHistory');
+                const medicalHistoryData = await response.json();
+
+                const container = document.getElementById('medicalHistoryContainer');
+
+                medicalHistoryData.forEach(history => {
+                    const historyElement = document.createElement('div');
+
+                    // Ajusta esto según la estructura de tu modelo de datos
+                    historyElement.innerHTML = `
+                        <p><strong>Paciente:</strong> ${history.patient}</p>
+                        <p><strong>Alergias:</strong> ${history.allergies.join(', ')}</p>
+                        <p><strong>Medicamentos:</strong> ${history.medications.join(', ')}</p>
+                        <hr>
+                    `;
+
+                    container.appendChild(historyElement);
+                });
+
+            } catch (error) {
+                console.error('Error al obtener historias clínicas:', error);
+            }
+        }
+    </script>
+</body>
+</html>
+

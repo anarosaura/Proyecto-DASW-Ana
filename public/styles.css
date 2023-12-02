@@ -1,0 +1,169 @@
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #004AAD;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;  
+}
+
+.logo {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 1px; 
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+nav li {
+    display: inline;
+    margin: 0 10px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #fff;
+}
+
+
+nav a:hover {
+   
+    color:#ccc;
+}
+
+.columns {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #f1f1f1;
+}
+
+.column {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+    background-color: #fff;
+}
+
+.column h2 {
+    font-size: 18px;
+}
+
+.column p {
+    font-size: 14px;
+}
+
+.user-actions {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+}
+
+.user-actions ul {
+    list-style: none;
+    padding: 0;
+}
+
+.user-actions li {
+    display: inline;
+    margin: 0 10px;
+}
+
+.user-actions a {
+    text-decoration: none;
+    color: #333;
+    padding: 5px 10px;
+    background-color: #fff; 
+    border: 1px solid #333;
+    border-radius: 5px;
+}
+
+.user-actions a:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+.feature-section {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 20px;
+    background-color: #f1f1f1;
+}
+
+.feature {
+    text-align: center;
+    width: 30%;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.feature h3 {
+    font-size: 18px;
+}
+
+.feature p {
+    font-size: 14px;
+    color: #777;
+}
+
+.feature-icon img {
+    max-width: 50px;
+    max-height: 50px;
+}
+
+
+.doctor-carousel {
+    background-color: #f7f7f7;
+    padding: 20px;
+    text-align: center;
+}
+
+.carousel-container {
+    display: flex;
+    overflow: hidden;
+    justify-content: space-between;
+}
+
+.carousel-slide {
+    flex: 0 0 30%; 
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 0 5px;
+    text-align: left;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+
+.carousel-slide h3 {
+    font-size: 18px;
+    color: #333;
+}
+
+
+.carousel-slide p {
+    font-size: 14px;
+    color: #666;
+    margin: 5px 0;
+}
+.carousel-slide img {
+    max-width: 100%; 
+    margin-bottom: 10px; 
+}
+
+footer {
+    flex: 1;
+}

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <title>Perfil de Médico</title>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-4">
+
+                <div class="card">
+                    <img src="https://via.placeholder.com/150" class="card-img-top" alt="Imagen de Perfil del Médico">
+                    <div class="card-body">
+                        <h5 class="card-title" id="userName"></h5>
+                        <p class="card-text" id="userSpeciality">Especialdiad: </p>
+                        <p class="card-text" id="userPhone">Número de Teléfono: </p>
+                        <p class="card-text" id="userEmail">Correo Electrónico: </p>
+                        <button id="gestionarCitasBtn" class="btn btn-primary">Gestionar Citas</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Detalles del Perfil del Médico</h5>
+
+                    </div>
+                </div>
+                <a href="#" class="btn btn-danger mt-3">Cerrar Sesión</a>
+                <ul class="nav mt-3">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../index.html">Regresar a la Página Principal</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@4.0.0/build/cjs/index.min.js"></script>
+    <script>
+        // Obtén el token almacenado en el localStorage
+        const token = localStorage.getItem("token");
+
+        // Verifica si el token existe antes de realizar la solicitud
+        if (token) {
+            // Decodificar el token para obtener la información del usuario, especialmente el ID
+            const decodedToken = jwtDecode(token);
+            const userId = decodedToken.userId;
+            console.log(decodedToken);
+
+            // Hacer la solicitud con el ID del usuario
+            fetch(`http://localhost:3000/Doctor/${userId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    document.getElementById('userName').textContent = data.name;
+                    document.getElementById('userEmail').textContent = 'Correo Electrónico: ' + data.email;
+                    document.getElementById('userPhone').textContent = 'Número de Teléfono: ' + data.phone;
+                    document.getElementById('userSpeciality').textContent = 'Espacialidad: ' + data.specialty;
+                })
+                .catch(error => console.error('Error al obtener datos:', error));
+        } else {
+            console.error("Token no encontrado en el localStorage");
+
+        }
+        
+        $(document).ready(function () {
+            
+            // Agrega un evento de clic al botón "Gestionar Citas"
+            $("#gestionarCitasBtn").on("click", function () {
+                // Llama a la función que redirige a la página de citas con el userId como parámetro
+                redirigirAGestionDeCitas();
+            });
+
+            // Función para redirigir a la página de gestión de citas con el userId como parámetro
+            function redirigirAGestionDeCitas() {
+                // Obtén el userId (puedes obtenerlo de donde sea que lo hayas almacenado después de decodificar el token)
+                const userId = obtenerUserId(); // Ajusta esta función según tu lógica
+
+                // Redirige a la página donde se gestionarán las citas médicas con el userId como parámetro
+                window.location.href = `doctor_schedule.html?userId=${userId}`;
+            }
+
+            // Función para obtener el userId (ajusta según tu lógica)
+            function obtenerUserId() {
+                const decodedToken = jwtDecode(token);
+                const userId = decodedToken.userId;
+                console.log(userId);
+                // Aquí debes obtener el userId, por ejemplo, desde algún lugar donde lo hayas almacenado
+                return userId; // Ajusta este valor según tu lógica
+            }
+        });
+    </script>
+</body>
+
+</html>

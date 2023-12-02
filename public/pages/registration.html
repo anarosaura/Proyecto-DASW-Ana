@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <title>Registro - Servicios Médicos</title>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .register-container {
+            max-width: 600px;
+            margin: 0 auto;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container register-container">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="text-center">Registro</h2>
+                <form id="registrationForm">
+
+                    <div class="mb-3">
+                        <label for="userType" class="form-label">Seleccione Tipo de Usuario</label>
+                        <select class="form-select" id="userType" name="userType" required>
+                            <option value="medico">Médico</option>
+                            <option value="usuario">Usuario</option>
+                        </select>
+                    </div>
+
+                    <div id="medicoSection" class="mb-3">
+                        <label for="specialty" class="form-label">Especialidad</label>
+                        <select class="form-select" id="specialty" name="specialty">
+                            <option value="dermatologo">Dermatólogo</option>
+                            <option value="ginecologo">Ginecólogo</option>
+                            <option value="gastroenterlologo">Gastroenterlólogo</option>
+                            <option value="neurologo">Neurólogo</option>
+                            <option value="oftalmologo">Oftalmólogo</option>
+                            <option value="urologo">Urólogo</option>
+                            <option value="ortopedista">Ortopedista</option>
+                            <option value="otorrinolaringologo">Otorrinolaringólogo</option>
+                            <option value="dentista-odontologo">Dentista-Odontólogo</option>
+                            <option value="psiquiatra">Psiquiatra</option>
+                            <option value="cirujano-general">Cirujano General</option>
+                            <option value="cardiologo">Cardiólogo</option>
+                            <option value="geriatra">Geriatra</option>
+                            <option value="oncologo">Oncólogo</option>
+                            <option value="pediatra">Pediatra</option>
+                        </select>
+                    </div>
+
+                    <div id="usuarioSection" class="mb-3">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label">Teléfono (10 dígitos)</label>
+                        <input type="tel" class="form-control" id="telefono" name="telefono" pattern="[0-9]{10}"
+                            required>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                        <label class="form-check-label" for="agreeTerms">Acepto los términos y condiciones</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
+
+                </form>
+                <hr>
+                <p class="text-center">¿Ya tienes una cuenta? <a href="login.html">Inicia Sesión</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function submitForm() {
+            var form = $('#registrationForm');
+            var formData = form.serializeArray();
+            var jsonData = {};
+
+            $.each(formData, function (_, record) {
+                jsonData[record.name] = record.value || '';
+            });
+
+            var apiUrl = jsonData.userType === 'medico' ? 'http://localhost:3000/Doctor' : 'http://localhost:3000/User';
+
+            $.ajax({
+                type: 'POST',
+                url: apiUrl,
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    name: jsonData.nombre,
+                    phone: jsonData.telefono,
+                    password: jsonData.password,
+                    email: jsonData.email,
+                    specialty: jsonData.specialty || '',
+                    isDoctor: jsonData.userType === 'medico',
+                }),
+                success: function (response) {
+                    // Mostrar mensaje exitoso con SweetAlert2
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Registro exitoso',
+                        showConfirmButton: false,
+                        timer: 2000  // Cierra automáticamente después de 2 segundos
+                    }).then(function () {
+                        // Redirigir a la página de inicio de sesión
+                        window.location.href = 'login.html';
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error en la solicitud AJAX:");
+                    console.error("Estado: " + status);
+                    console.error("Error: " + error);
+                    console.error("Respuesta completa del servidor:");
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+
+        // Manejar el evento submit
+        $('#registrationForm').submit(function (event) {
+            event.preventDefault();
+            submitForm();
+        });
+
+        // Manejar el cambio en el elemento 'userType'
+        $('#userType').change(function () {
+            var userTypeValue = $(this).val();
+            $('#medicoSection, #usuarioSection').hide();
+
+            if (userTypeValue === 'medico') {
+                $('#medicoSection').show();
+            } else if (userTypeValue === 'usuario') {
+                $('#usuarioSection').show();
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+
+    <title>Agendar cita</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Consulta Médica</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="appointments.html">Agendar una cita</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="index_user.html">Ver mi perfil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="medical_history.html">Ver resultados de pruebas</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+
+    <div class="container">
+        <h2 class="mt-5 mb-3">¡Agenda una cita con nuestros especialistas!</h2>
+
+        <form id="appointmentForm">
+            <div class="mb-3">
+                <label for="specialty" class="form-label">Seleccione una especialidad:</label>
+                <select class="form-select" id="specialty" name="specialty">
+                    <option value="dermatologo">Dermatólogo</option>
+                    <option value="ginecologo">Ginecólogo</option>
+                    <option value="gastroenterlologo">Gastroenterlólogo</option>
+                    <option value="neurologo">Neurólogo</option>
+                    <option value="oftalmologo">Oftalmólogo</option>
+                    <option value="urologo">Urólogo</option>
+                    <option value="ortopedista">Ortopedista</option>
+                    <option value="otorrinolaringologo">Otorrinolaringólogo</option>
+                    <option value="dentista-odontologo">Dentista-Odontólogo</option>
+                    <option value="psiquiatra">Psiquiatra</option>
+                    <option value="cirujano-general">Cirujano General</option>
+                    <option value="cardiologo">Cardiólogo</option>
+                    <option value="geriatra">Geriatra</option>
+                    <option value="oncologo">Oncólogo</option>
+                    <option value="pediatra">Pediatra</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="doctor" class="form-label">Seleccione un médico:</label>
+                <select class="form-select" id="doctor" name="doctor">
+                    <!-- Opciones de médicos se agregarán dinámicamente aquí -->
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="dateTime" class="form-label">Fecha y Hora de la cita:</label>
+                <input type="datetime-local" class="form-control" id="dateTime" name="dateTime">
+            </div>
+
+            <div class="mb-3">
+                <label for="patientNotes" class="form-label">Notas del Paciente:</label>
+                <textarea class="form-control" id="patientNotes" name="patientNotes" rows="4"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Crear Cita</button>
+        </form>
+        <h2 class="mt-5 mb-3">Citas programadas</h2>
+        <div id="appointmentInfo" class="mt-4">
+
+        </div>
+
+
+    </div>
+    <!-- Modal de Edición -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Editar Cita</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Contenido del formulario de edición -->
+                    <form id="editForm">
+                        <!-- Campos de edición, por ejemplo, seleccionar nuevo médico, fecha y notas -->
+                        <div class="mb-3">
+                            <label for="editDoctor" class="form-label">Seleccione un médico:</label>
+                            <select class="form-select" id="editDoctor" name="editDoctor">
+                                <!-- Opciones de médicos se agregarán dinámicamente aquí -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDateTime" class="form-label">Nueva Fecha y Hora:</label>
+                            <input type="datetime-local" class="form-control" id="editDateTime" name="editDateTime">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPatientNotes" class="form-label">Nuevas Notas del Paciente:</label>
+                            <textarea class="form-control" id="editPatientNotes" name="editPatientNotes"
+                                rows="4"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
+
+    <script>
+        const token = localStorage.getItem("token");
+
+        // Función para obtener el valor de una cookie
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        // Obtener el ID del paciente desde la cookie
+        const patientId = getCookie('patientId');
+
+        $(document).ready(function () {
+            $('#specialty').change(function () {
+                var selectedSpecialty = $(this).val();
+
+                $.ajax({
+                    url: `http://localhost:3000/Doctor/specialty/${selectedSpecialty}?patientId=${patientId}`,
+                    method: 'GET',
+                    success: function (doctors) {
+                        $('#doctor').empty();
+                        if (doctors.length === 0) {
+                            console.log('No se encontraron médicos para la especialidad seleccionada.');
+                        } else {
+                            console.log('Médicos recibidos:', doctors);
+                            doctors.forEach(function (doctor) {
+                                var optionText = 'Dr. ' + doctor.name + ' - ' + doctor.email;
+                                $('#doctor').append($('<option>', {
+                                    value: doctor._id,
+                                    text: optionText
+                                }));
+                            });
+                        }
+                    },
+                    error: function (error) {
+                        console.error('Error al obtener médicos:', error);
+                    }
+                });
+            });
+
+            $('#appointmentForm').submit(function (event) {
+                event.preventDefault();
+
+                var localDateTimeValue = $('#dateTime').val();
+                var formattedDateTimeValue = localDateTimeValue;
+
+                var formData = {
+                    specialty: $('#specialty').val(),
+                    doctor: $('#doctor').val(),
+                    dateTime: formattedDateTimeValue,
+                    patient: patientId,
+                    patientNotes: $('#patientNotes').val(),
+                };
+
+                $.ajax({
+                    url: 'http://localhost:3000/Appointment',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function (response) {
+                        console.log('Cita agendada con éxito:', response);
+                        $('#appointmentForm')[0].reset();
+                        alert('Cita agendada con éxito');
+                        const doctorName = `Dr. ${response.doctor.name}`;
+                        // Resto del código...
+
+                        loadAppointmentInfo(patientId);
+                    },
+                    error: function (error) {
+                        console.error('Error al agendar cita:', error);
+
+                        if (error.responseJSON) {
+                            console.error('Detalles del error:', error.responseJSON);
+                        }
+                    }
+                });
+            });
+        });
+
+        function loadAppointmentInfo(patientId) {
+            // Realizar una solicitud para obtener la información de las citas
+            $.ajax({
+                url: `http://localhost:3000/Appointment/patient/${patientId}`,
+                method: 'GET',
+                success: function (appointments) {
+                    // Limpiar el contenido anterior en #appointmentInfo
+                    $('#appointmentInfo').empty();
+
+                    // Verificar si hay citas
+                    if (appointments.length > 0) {
+                        // Crear una tabla para mostrar las citas
+                        var table = $('<table>').addClass('table');
+                        var thead = $('<thead>').appendTo(table);
+                        var tr = $('<tr>').appendTo(thead);
+                        $('<th>').text('Fecha y Hora').appendTo(tr);
+                        $('<th>').text('Especialidad').appendTo(tr);
+                        $('<th>').text('Médico').appendTo(tr);
+                        $('<th>').text('Notas del Paciente').appendTo(tr);
+                        $('<th>').text('Acciones').appendTo(tr);  // Nueva columna para botones de acción
+
+                        // Crear el cuerpo de la tabla
+                        var tbody = $('<tbody>').appendTo(table);
+
+                        // Iterar sobre las citas y agregar filas a la tabla
+                        appointments.forEach(function (appointment) {
+                            var row = $('<tr>').appendTo(tbody);
+                            $('<td>').text(appointment.dateTime).appendTo(row);
+                            $('<td>').text(appointment.specialty).appendTo(row);
+
+                            // Nueva celda para el nombre del médico
+                            var doctorCell = $('<td>').appendTo(row);
+
+                            // Obtener el nombre del médico
+                            const doctorId = appointment.doctor;
+                            $.ajax({
+                                url: `http://localhost:3000/Doctor/${doctorId}`,
+                                method: 'GET',
+                                success: function (doctor) {
+                                    // Agregar el nombre del médico a la celda correspondiente
+                                    doctorCell.text('Dr. ' + doctor.name);
+                                },
+                                error: function (error) {
+                                    console.error('Error al obtener información del médico:', error);
+                                }
+                            });
+
+                            // Continuar con las otras columnas
+                            $('<td>').text(appointment.patientNotes).appendTo(row);
+
+                            // Nueva celda para botones de acción
+                            var actionsCell = $('<td>').appendTo(row);
+                            // Botón de editar cita
+                            var editButton = $('<button>')
+                                .text('Editar')
+                                .addClass('btn btn-warning btn-sm mx-1') // Clases de Bootstrap para un botón de color amarillo
+                                .click(function () {
+                                    // Llamada a la función para mostrar el modal de edición
+                                    showEditModal(appointment);
+                                });
+
+                            editButton.appendTo(actionsCell);
+
+
+                            function showEditModal(appointment) {
+                                // Rellenar el modal con la información actual de la cita
+                                $('#editDoctor').val(appointment.doctor);
+                                $('#editDateTime').val(appointment.dateTime);
+                                $('#editPatientNotes').val(appointment.patientNotes);
+
+                                // Cargar la lista de médicos antes de mostrar el modal
+                                loadDoctors(appointment.specialty, function (doctors) {
+                                    // Llenar el desplegable de médicos con la lista obtenida
+                                    populateDoctorsDropdown(doctors);
+
+                                    // Mostrar el modal de edición
+                                    $('#editModal').modal('show');
+
+                                    // Actualizar el evento de envío del formulario de edición
+                                    $('#editForm').off('submit').on('submit', function (event) {
+                                        event.preventDefault();
+
+                                        // Obtener los valores actualizados del formulario de edición
+                                        const updatedData = {
+                                            doctor: $('#editDoctor').val(),
+                                            dateTime: $('#editDateTime').val(),
+                                            patientNotes: $('#editPatientNotes').val(),
+                                        };
+
+                                        // Enviar la solicitud de edición al servidor
+                                        editAppointment(appointment._id, updatedData);
+                                    });
+                                });
+                            }
+                            function loadDoctors(specialty, callback) {
+                                const token = localStorage.getItem('token');
+
+                                $.ajax({
+                                    url: `http://localhost:3000/Doctor/specialty/${specialty}?patientId=${patientId}`,
+                                    method: 'GET',
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`
+                                    },
+                                    success: function (doctors) {
+                                        // Llamar al callback con la lista de médicos
+                                        callback(doctors);
+                                    },
+                                    error: function (error) {
+                                        console.error('Error al obtener médicos:', error);
+                                        // Puedes manejar el error según tus necesidades
+                                    }
+                                });
+                            }
+
+                            function populateDoctorsDropdown(doctors) {
+                                $('#editDoctor').empty();
+                                if (doctors.length === 0) {
+                                    console.log('No se encontraron médicos para la especialidad seleccionada.');
+                                } else {
+                                    console.log('Médicos recibidos:', doctors);
+                                    doctors.forEach(function (doctor) {
+                                        var optionText = 'Dr. ' + doctor.name + ' - ' + doctor.email;
+                                        $('#editDoctor').append($('<option>', {
+                                            value: doctor._id,
+                                            text: optionText
+                                        }));
+                                    });
+                                }
+                            }
+
+
+                            function editAppointment(appointmentId, updatedData) {
+                                const token = localStorage.getItem('token');
+
+                                $.ajax({
+                                    url: `http://localhost:3000/Appointment/${appointmentId}`,
+                                    method: 'PUT',
+                                    contentType: 'application/json',
+                                    data: JSON.stringify(updatedData),
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`
+                                    },
+                                    success: function (response) {
+                                        console.log('Cita editada con éxito:', response);
+                                        $('#editModal').modal('hide');
+                                        loadAppointmentInfo(patientId);
+                                    },
+                                    error: function (error) {
+                                        console.error('Error al editar la cita:', error);
+
+                                        if (error.status === 403) {
+                                            console.error('Acceso prohibido. Verifica los permisos y el token.');
+                                        } else {
+                                            console.error('Detalles del error:', error.responseJSON);
+                                        }
+                                    }
+                                });
+                            }
+
+                            // Botón de eliminar cita
+                            var deleteButton = $('<button>')
+                                .text('Eliminar')
+                                .addClass('btn btn-danger btn-sm')
+                                .click(function () {
+                                    // Obtener el ID de la cita a eliminar
+                                    var appointmentId = appointment._id;
+
+                                    // Confirmar si realmente se quiere eliminar la cita
+                                    if (confirm('¿Seguro que quieres eliminar esta cita?')) {
+                                        // Llamada a la función para eliminar la cita
+                                        deleteAppointment(appointmentId);
+                                    }
+                                });
+
+                            // Función para eliminar la cita
+                            function deleteAppointment(appointmentId) {
+                                $.ajax({
+                                    url: `http://localhost:3000/Appointment/${appointmentId}`,
+                                    method: 'DELETE',
+                                    success: function (response) {
+                                        // Cita eliminada con éxito
+                                        alert('Cita eliminada con éxito.');
+                                        // Actualizar la interfaz de usuario o recargar la lista de citas
+                                        loadAppointmentInfo(patientId);
+                                    },
+                                    error: function (error) {
+                                        console.error('Error al eliminar cita:', error);
+                                        // Manejar errores o mostrar mensajes según sea necesario
+                                        alert('Error al eliminar la cita. Consulta la consola para más detalles.');
+                                    }
+                                });
+                            }
+
+
+                            deleteButton.appendTo(actionsCell);
+                        });
+
+                        // Agregar la tabla al div #appointmentInfo
+
+                        table.appendTo('#appointmentInfo');
+                    } else {
+                        // Si no hay citas, mostrar un mensaje
+                        $('#appointmentInfo').text('No hay citas agendadas.');
+                    }
+                },
+                error: function (error) {
+                    console.error('Error al obtener información de citas:', error);
+                }
+            });
+        }
+
+
+        // Llamada a la función para cargar la información de citas al cargar la página
+        loadAppointmentInfo(patientId);
+    </script>
+
+</body>
+
+</html>
