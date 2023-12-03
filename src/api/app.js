@@ -151,15 +151,19 @@ function verifyToken(req, res, next) {
 }
 
 // Upload files
-app.post('/upload', uploadMiddleware.single('archivo'), (req, res) => {
+app.post('/upload', uploadMiddleware.single('archivo'), async (req, res) => {
     try {
         console.log('File:', req.file);
         if (req.file) {
             console.log('body: ', req.body);
-            const imgArray = req.file.path.split('/');
-            // Enviar el nombre del archivo como respuesta
-            res.send(req.file.filename);
 
+            const newImage = new Image({
+                data: req.file.buffer,
+                contentType: req.file.mimetype
+            });
+
+            await newImage.save();
+            res.status(200).send('Imagen subida con éxito.');
         } else {
             res.status(400).send('invalid format');
         }
