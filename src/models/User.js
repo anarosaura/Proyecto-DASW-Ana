@@ -6,8 +6,7 @@ const userSchema = new Schema({
   email: { type: String, required: true },
   password: { type: String, required: true },
   phone: { type: Number, required: true },
-  isDoctor: {type: Boolean, default: false},
-  image: {type: String, required: true}
+  isDoctor: {type: Boolean, default: false,},
   });
 
 module.exports = mongoose.model('User', userSchema);

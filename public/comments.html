@@ -10,18 +10,35 @@
     <style>
         body {
             background-color: #f8f9fa;
+            
         }
-
         .comments-container {
             max-width: 800px;
             margin: 0 auto;
             margin-top: 50px;
         }
+
+        header {
+            background-color: #333; /* Cambia el color de fondo según tus preferencias */
+            padding: 10px; /* Ajusta el relleno según sea necesario */
+            
+        }
+        header img {
+            margin: 0 auto; /* Centra la imagen horizontalmente dentro del header */
+            display: block; /* Asegura que el margen automático funcione correctamente */
+        }
     </style>
 </head>
 
 <body>
-    <div class="container comments-container">
+    <header>
+        <div class="logo">
+            <img src="../public/images/logo2.png" alt="Logo de empresa" height="80px">
+        </div>
+        
+    </header>
+
+    <div class="comments-container">
         <h2 class="text-center mb-4">Comentarios</h2>
 
         <form id="commentForm">
@@ -36,6 +53,7 @@
             <!-- Los comentarios se mostrarán aquí -->
         </div>
     </div>
+</div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
@@ -52,9 +70,34 @@
 
         // Obtener el ID del paciente desde la cookie
         const userId = getCookie('patientId');
-
+        const usersMap = {};
 
         $(document).ready(function () {
+
+            // Función para cargar información de usuario
+            function loadUserData() {
+                $.ajax({
+                    url: 'http://localhost:3000/User', 
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    success: function (users) {
+                        users.forEach(user => {
+                            usersMap[user._id] = user.name;
+                        });
+                        // Después de cargar la información del usuario, carga los comentarios
+                        loadComments();
+                    },
+                    error: function (error) {
+                        console.error('Error al cargar información del usuario:', error);
+                    }
+                });
+            }
+
+            // Llama a la función para cargar la información del usuario al inicio
+            loadUserData();
+
             // Función para cargar comentarios desde la API
             function loadComments() {
                 $.ajax({
@@ -62,27 +105,22 @@
                     method: 'GET',
                     success: function (comments) {
                         $('#commentsList').empty();
+                        comments.forEach(comment => {
+                            const authorName = usersMap[comment.author] || 'Usuario Desconocido';
 
-                        $.ajax({
-                            url: 'http://localhost:3000/User',
-                            method: 'GET',
-                            success: function (users) {
-                                const usersMap = {};
+                            const deleteButton = (comment.author === userId) ?
+                                `<button class="btn btn-sm btn-danger" onclick="deleteComment('${comment._id}')">Eliminar</button>` :
+                                '';
 
-                                // Convertir los IDs de usuarios a cadenas para asegurar la comparación correcta
-                                users.forEach(user => {
-                                    usersMap[user._id.toString()] = user.name;
-                                });
-
-                                comments.forEach(comment => {
-                                    const authorName = usersMap[comment.author] || 'Usuario Desconocido';
-                                    const commentHTML = `<div class="card mb-3"><div class="card-body"><p class="card-text">${comment.text}</p><p class="card-subtitle text-muted">Por Usuario: ${authorName}</p><p class="card-subtitle text-muted">Fecha de Creación: ${new Date(comment.createdAt).toLocaleString()}</p></div></div>`;
-                                    $('#commentsList').append(commentHTML);
-                                });
-                            },
-                            error: function (error) {
-                                console.error('Error al cargar usuarios:', error);
-                            }
+                            const commentHTML = `<div class="card mb-3">
+                    <div class="card-body">
+                        <p class="card-text">${comment.text}</p>
+                        <p class="card-subtitle text-muted">Por Usuario: ${authorName}</p>
+                        <p class="card-subtitle text-muted">Fecha de Creación: ${new Date(comment.createdAt).toLocaleString()}</p>
+                        ${deleteButton}
+                    </div>
+                </div>`;
+                            $('#commentsList').append(commentHTML);
                         });
                     },
                     error: function (error) {
@@ -90,7 +128,6 @@
                     }
                 });
             }
-
             // Cargar comentarios al cargar la página
             loadComments();
 
@@ -100,7 +137,7 @@
 
                 if (commentText && userId) {
                     $.ajax({
-                        url: 'http://localhost:3000/Comment', // Reemplaza con la URL de tu API
+                        url: 'http://localhost:3000/Comment',
                         method: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify({ text: commentText, author: userId }),
@@ -108,10 +145,7 @@
                             'Authorization': `Bearer ${token}`
                         },
                         success: function () {
-                            // Recargar comentarios después de agregar uno nuevo
                             loadComments();
-
-                            // Limpiar el formulario
                             $('#commentForm')[0].reset();
                         },
                         error: function (error) {
@@ -121,7 +155,27 @@
                 }
             });
 
+            function deleteComment(commentId) {
+                $.ajax({
+                    url: `http://localhost:3000/Comment/${commentId}`,
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    success: function () {
+                        loadComments();
+                    },
+                    error: function (error) {
+                        console.error('Error al eliminar comentario:', error);
+                    }
+                });
+            }
+
+
+
         });
+
+
     </script>
 </body>
 

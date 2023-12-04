@@ -1,56 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctos's House</title>
     <link rel="stylesheet" href="styles.css">
+
 </head>
+
 <body>
+
     <header>
+
         <div class="logo">
-            <img src="./images/logo2.png" alt="Logo de empresa" height="100">
+            <img src="./images/logo2.png" alt="Logo de empresa" height="80px">
         </div>
         <nav>
             <ul>
-                <li><a href="./pages/users/index_user.html">Pacientes</a></li>
-                <li><a href="./pages/doctors/index_doctor.html">Médicos</a></li>
-                <li><a href="comments.html">Comentarios</a></li>
-                <li><a href="contacto.html">Contacto</a></li>
+                <li><a id="pacientes">Pacientes</a></li>
+                <li><a id="medicos">Médicos</a></li>
+                <li><a id="comentarios">Comentarios</a></li>
+
             </ul>
         </nav>
     </header>
 
     <div class="user-actions">
         <ul>
-            <li><a href="/pages/registration.html">Registrarse Gratis</a></li>
-            <li><a href="/pages/login.html">Iniciar Sesión</a></li>
+            <li id="nombreUsuario"></li>
+            <li id="registroLink" style="display: none;"><a href="/public/pages/registration.html">Registrarse
+                    Gratis</a></li>
+            <li id="loginLink" style="display: none;"><a href="/public/pages/login.html">Iniciar Sesión</a></li>
         </ul>
     </div>
 
     <section class="feature-section">
         <div class="feature">
-            <div class="feature-icon">
-                <img src="./images/search-icon.png" alt="Buscar especialista">
-            </div>
-            <h3>Buscar Especialista</h3>
-            <p>Encuentra a los especialistas que necesitas.</p>
+            <a href="services.html">
+                <div class="feature-icon">
+                    <img src="./images/search-icon.png" alt="Buscar especialista">
+                </div>
+                <h3>Buscar Especialista</h3>
+                <p>Encuentra a los especialistas que necesitas.</p>
+            </a>
         </div>
-        <div class="feature">
+        <div class="feature" id="programarCita">
             <div class="feature-icon">
                 <img src="./images/calendar-icon.png" alt="Programar una cita">
             </div>
             <h3>Programar una Cita</h3>
             <p>Programa tu cita médica de manera sencilla.</p>
         </div>
-        <div class="feature">
-            <div class="feature-icon">
-                <img src="./images/reminder-icon.png" alt="Recordatorios">
-            </div>
-            <h3>Recordatorios</h3>
-            <p>Recibe recordatorios importantes para tu salud.</p>
-        </div>
+
     </section>
 
     <section class="doctor-carousel">
@@ -80,23 +83,201 @@
     <footer>
         <section class="columns">
             <div class="column">
-                <h2>Servicios</h2>
+                <h2>FQA</h2>
                 <p>Descripción de los servicios que ofrecemos.</p>
+                <li><a href="comments.html">Comentarios</a></li>
             </div>
             <div class="column">
                 <h2>Pacientes</h2>
                 <p>Información para pacientes.</p>
+                <li><a href="./pages/users/index_user.html">Pacientes</a></li>
             </div>
             <div class="column">
                 <h2>Médicos</h2>
                 <p>Información para médicos.</p>
-            </div>
-            <div class="column">
-                <h2>Información de la Empresa</h2>
-                <p>Información sobre la empresa y su historia.</p>
+                <li><a href="./pages/doctors/index_doctor.html">Médicos</a></li>
             </div>
         </section>
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@4.0.0/build/cjs/index.min.js"></script>
+
+    <script>
+
+
+
+        // Asignar el evento clic al elemento con el id "programarCita"
+        document.addEventListener('DOMContentLoaded', async function () {
+    // Obtener los elementos con los ids respectivos
+    var programarCitaElement = document.getElementById('programarCita');
+    var pacientesElement = document.getElementById('pacientes');
+    var medicosElement = document.getElementById('medicos');
+    var comentariosElement = document.getElementById('comentarios');
+
+    // Asignar eventos de clic a los elementos correspondientes
+    asignarEvento(programarCitaElement, '/public/pages/login.html', 'Usuario autenticado como médico. Programando cita médica...');
+    asignarEvento(pacientesElement, "./pages/users/index_user.html" , 'Usuario autenticado como paciente. Redirigiendo a la página de pacientes...');
+    asignarEvento(medicosElement, "./pages/doctors/index_doctor.html", 'Usuario autenticado como médico. Redirigiendo a la página de médicos...');
+    asignarEvento(comentariosElement, "comments.html", 'Usuario autenticado. Redirigiendo a la página de comentarios...');
+
+    // Función para asignar eventos de clic a elementos
+    function asignarEvento(elemento, rutaRedireccion, mensajeLog) {
+        if (elemento) {
+            elemento.addEventListener('click', async function () {
+                try {
+                    var autenticacionInfo = await verificarAutenticacion();
+                    console.log("Usuario autenticado? " + autenticacionInfo.autenticado);
+                    console.log("Es medico? " + autenticacionInfo.esMedico);
+
+                    if (autenticacionInfo.autenticado) {
+                        console.log(mensajeLog);
+                        window.location.href = rutaRedireccion;
+                    } else {
+                        // El usuario no está autenticado, redirigir a la página de inicio de sesión
+                        console.log("Usuario no autenticado. Redirigiendo a la página de inicio de sesión...");
+                        window.location.href = '/public/pages/login.html';
+                    }
+                } catch (error) {
+                    // Manejar errores al verificar la autenticación
+                    console.error('Error al verificar la autenticación:', error);
+                    // El usuario no está autenticado, redirigir a la página de inicio de sesión
+                    console.log("Redirigiendo a la página de inicio de sesión debido a un error de autenticación...");
+                    window.location.href = '/public/pages/login.html';
+                }
+            });
+        }
+    }
+});
+
+
+        // Función para verificar si el usuario está autenticado
+        async function verificarAutenticacion() {
+            var usuarioAutenticado = false;
+            var esMedico = false;
+
+            // Obtener el token del localStorage
+            const token = localStorage.getItem('token');
+
+            // Verificar si el token existe y no está vacío
+            if (token && token.trim() !== "") {
+                try {
+                    // Decodificar el token
+                    const decodedToken = jwtDecode(token);
+
+                    // Obtener el ID del usuario desde el token
+                    const userId = decodedToken.userId;
+
+                    // Obtener el tipo de usuario (puedes ajustar esto según la estructura de tu token)
+                    esMedico = await obtenerNombreUsuario(userId);
+
+                    // Ocultar los botones de registrarse e iniciar sesión
+                    const registroLink = document.getElementById('registroLink');
+                    const loginLink = document.getElementById('loginLink');
+                    if (registroLink && loginLink) {
+                        registroLink.style.display = 'none';
+                        loginLink.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error al decodificar el token:', error);
+                }
+
+                usuarioAutenticado = true;
+
+                return {
+                    autenticado: usuarioAutenticado,
+                    esMedico: esMedico
+                };
+            } else {
+                // Mostrar los botones de registro e inicio de sesión si no hay token
+                const registroLink = document.getElementById('registroLink');
+                const loginLink = document.getElementById('loginLink');
+                if (registroLink && loginLink) {
+                    registroLink.style.display = 'inline-block';
+                    loginLink.style.display = 'inline-block';
+                }
+                usuarioAutenticado = false;
+                esMedico = false;
+                return {
+                    autenticado: usuarioAutenticado,
+                    esMedico: esMedico
+                };
+            }
+        }
+
+
+        
+
+        // Función para obtener el nombre del usuario mediante un fetch
+        async function obtenerNombreUsuario(userId) {
+            const apiUrlUser = `http://localhost:3000/User/${userId}`;
+            const token = localStorage.getItem('token');
+
+
+            try {
+                const response = await fetch(apiUrlUser, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                });
+
+                if (!response.ok) {
+                    // Si la respuesta no es exitosa (por ejemplo, 404), intentar obtener el nombre del médico
+                    throw new Error('Usuario no encontrado. Intentando obtener el nombre del médico...');
+                }
+
+                const data = await response.json();
+
+                const nombreUsuarioElement = document.getElementById('nombreUsuario');
+                if (nombreUsuarioElement) {
+                    nombreUsuarioElement.textContent = '¡Hola, ' + (data.name || 'usuario') + '!';
+                    nombreUsuarioElement.style.color = 'white';
+                    isDoctor = false;
+                }
+
+                console.log("obtener nombre de usuario dice que doctor es:" + isDoctor);
+                return isDoctor;
+            } catch (error) {
+                obtenerNombreMedico(userId)
+
+                return true;
+            }
+        }
+
+        // Función para obtener el nombre del médico
+        function obtenerNombreMedico(doctorId) {
+            const token = localStorage.getItem('token');
+
+            const apiUrlDoctor = `http://localhost:3000/Doctor/${doctorId}`;
+            fetch(apiUrlDoctor, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al obtener el nombre del médico');
+                    }
+                    return response.json();
+                })
+                .then(doctorData => {
+                    const nombreUsuarioElement = document.getElementById('nombreUsuario');
+                    if (nombreUsuarioElement) {
+                        nombreUsuarioElement.textContent = '¡Hola, ' + (doctorData.name || 'usuario') + '!';
+                        nombreUsuarioElement.style.color = 'white';
+
+                    }
+
+                })
+                .catch(error => console.error('Error al obtener el nombre del médico:', error));
+
+        }
+
+        verificarAutenticacion();
+    </script>
 </body>
 
 </html>

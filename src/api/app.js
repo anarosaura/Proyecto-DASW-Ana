@@ -19,15 +19,36 @@ const path = require('path');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, '../../public/uploads');
+        // Obtener el ID del usuario del cuerpo de la solicitud (req.body.userId)
+        const userId = req.body.userId;
+
+        if (!userId) {
+            return cb(new Error('El ID del usuario no está definido.'));
+        }
+
+        // Crear la ruta de destino basada en el ID del usuario
+        const userUploadsPath = path.join(__dirname, '../../public/uploads', String(userId));
+        try {
+            // Intentar crear la carpeta de manera síncrona
+            fs.mkdirSync(userUploadsPath, { recursive: true });
+        } catch (error) {
+            console.error('Error al crear el directorio:', error);
+        }
+        
+
+        cb(null, userUploadsPath);
     },
     filename: (req, file, cb) => {
-        const ts = new Date().getTime();
-        const ext = file.originalname.split('.').pop();
-        const name = `${ts}.${ext}`;
-        cb(null, name);
+        const userId = req.body.userId;
+        // Generar un nombre de archivo único (puedes usar una lógica diferente según tus necesidades)
+        const uniqueFileName = userId;
+
+        // Usar el nombre de archivo único
+        cb(null, uniqueFileName + path.extname(file.originalname));
     }
 });
+
+const upload = multer({ storage: storage });
 
 const fileFilter = (req, file, cb) =>{
     const isValid = file.mimetype.startsWith('image/');
@@ -35,8 +56,6 @@ const fileFilter = (req, file, cb) =>{
 }
 
 const uploadMiddleware = multer({storage, fileFilter});
-
-
 mongoose.connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -151,19 +170,15 @@ function verifyToken(req, res, next) {
 }
 
 // Upload files
-app.post('/upload', uploadMiddleware.single('archivo'), async (req, res) => {
+app.post('/upload', uploadMiddleware.single('archivo'), (req, res) => {
     try {
         console.log('File:', req.file);
         if (req.file) {
             console.log('body: ', req.body);
+            const imgArray = req.file.path.split('/');
+            // Enviar el nombre del archivo como respuesta
+            res.send(req.file.filename);
 
-            const newImage = new Image({
-                data: req.file.buffer,
-                contentType: req.file.mimetype
-            });
-
-            await newImage.save();
-            res.status(200).send('Imagen subida con éxito.');
         } else {
             res.status(400).send('invalid format');
         }
@@ -230,4 +245,3 @@ app.use("/MedicalHistory", verifyToken);
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
-

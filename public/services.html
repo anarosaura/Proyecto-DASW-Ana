@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .main-header {
+      background-color: white;
+      padding: 10px 0;
+      color: #ffffff;
+      text-align: center;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 0; /* Eliminar el margen inferior del h1 */
+    }
+    .custom-container {
+      background-color: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      border-radius: 10px;
+      margin: 30px auto;
+    }
+    h2 {
+      color: #007bff;
+    }
+  </style>
+  <title>Lista de Médicos</title>
+</head>
+<body>
+
+<div class="main-header">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="index.html">Doctores AS</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="index.html">Inicio</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="comments.html">Comentarios</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="./pages/login.html">Login</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+</div>
+
+<div class="container-fluid custom-container">
+  <h2 class="mb-4">Lista de Médicos Disponibles</h2>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Especialidad</th>
+          <th>Número de Teléfono</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody id="doctors-list">
+        
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<script>
+  // Hacer una llamada a la API para obtener la lista de médicos
+  fetch("http://localhost:3000/Doctor")
+    .then(response => response.json())
+    .then(doctors => {
+      const doctorsList = document.getElementById('doctors-list');
+
+      doctors.forEach(doctor => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${doctor.name}</td>
+          <td>${doctor.specialty}</td>
+          <td>${doctor.phone}</td>
+          <td>${doctor.email}</td>
+        `;
+        doctorsList.appendChild(row);
+      });
+    })
+    .catch(error => console.error('Error al obtener la lista de médicos:', error));
+</script>
+
+</body>
+</html>

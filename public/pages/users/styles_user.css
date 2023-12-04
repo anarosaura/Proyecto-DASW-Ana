@@ -1,3 +1,8 @@
+header {
+    background-color: #333; /* Cambia el color de fondo según tus preferencias */
+    align-items: center;
+}
+
 #photoContainer {
     margin-top: 20px;
     display: flex;
@@ -29,4 +34,3 @@
     max-width: 100%; /* Asegura que la imagen no sea más ancha que el contenedor */
     max-height: 100%; /* Asegura que la imagen no sea más alta que el contenedor */
 }
-

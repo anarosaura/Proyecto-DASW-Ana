@@ -1,42 +1,40 @@
-
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
+    
+
 }
 
 header {
-    background-color: #004AAD;
-    color: #fff;
-    text-align: center;
-    padding: 10px 0;  
-}
-
-.logo {
-    display: inline-block;
-    vertical-align: middle;
-    margin-right: 1px; 
+    background-color: #333; /* Cambia el color de fondo según tus preferencias */
+    padding: 10px; /* Ajusta el relleno según sea necesario */
+    display: flex;
 }
 
 nav ul {
     list-style: none;
+    margin: 0;
     padding: 0;
+    margin-top: 30px;
+    margin-left: 50px;
 }
 
 nav li {
     display: inline;
-    margin: 0 10px;
+    margin-right: 20px; /* Ajusta el margen entre elementos según sea necesario */
 }
 
 nav a {
     text-decoration: none;
-    color: #fff;
+    color: white; /* Cambia el color del texto según tus preferencias */
+    font-weight: bold;
+    font-size: 16px; /* Ajusta el tamaño de fuente según sea necesario */
 }
 
-
 nav a:hover {
-   
-    color:#ccc;
+    color: #ffcc00; /* Cambia el color al pasar el ratón sobre el enlace según tus preferencias */
+    cursor: pointer;
 }
 
 .columns {
@@ -163,7 +161,15 @@ nav a:hover {
     max-width: 100%; 
     margin-bottom: 10px; 
 }
+#programarCita {
+    color: blue; 
+    text-decoration: underline;
+    cursor: pointer;
+}
 
+#programarCita:hover {
+    color: darkblue; 
+}
 footer {
     flex: 1;
 }
